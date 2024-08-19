@@ -42,4 +42,20 @@ export class UserService {
             throw new BadRequestException(`Failed to create user: ${error.message}`);
         }
     }
+
+    async update(id: number, data: Prisma.UserUpdateInput): Promise<User> {
+        try {
+            return await this.userRepository.update(id, data)
+        } catch (error) {
+            throw new BadRequestException(`Failed to update user: ${error.message}`);
+        }
+    }
+
+    async delete(id: number): Promise<User> {
+        try {
+            return await this.userRepository.delete(id)
+        } catch (error) {
+            throw new BadRequestException(`Failed to delete user: ${error.message}`);
+        }
+    }
 }

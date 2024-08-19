@@ -22,29 +22,20 @@ export class CategoryRepository {
         return await this.prisma.category.create({ data });
     }
 
-    // async update ( params: {
-    //     id: number;
-    //     data: any;
-    // } ): Promise<Categorys>
-    // {
-    //     const { id, data } = params;
-    //     const numberId = Number( id );
+    async update(id: number, data: Prisma.CategoryUpdateInput): Promise<Category> {
+        return await this.prisma.category.update({
+            where: { id },
+            data: {
+                ...data
+            }
+        });
+    }
 
-    //     return await this.prisma.Category.update( {
-    //         data,
-    //         where: {
-    //             id: numberId
-    //         },
-    //     } );
-    // };
-
-    // async delete ( id: number ): Promise<Categorys>
-    // {
-    //     const numberId = Number( id );
-    //     return await this.prisma.Category.delete( {
-    //         where: {
-    //             id: numberId
-    //         },
-    //     } );
-    // };
+    async delete(id: number): Promise<Category> {
+        return await this.prisma.category.delete({
+            where: {
+                id
+            }
+        });
+    }
 }

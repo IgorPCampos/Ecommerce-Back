@@ -33,4 +33,20 @@ export class CategoryService {
             throw new BadRequestException(`Failed to create category: ${error.message}`);
         }
     }
+
+    async update(id: number, data: Prisma.CategoryUpdateInput): Promise<Category> {
+        try {
+            return await this.categoryRepository.update(id, data);
+        } catch (error) {
+            throw new BadRequestException(`Failed to update Category: ${error.message}`);
+        }
+    }
+
+    async delete(id: number): Promise<Category> {
+        try {
+            return await this.categoryRepository.delete(id);
+        } catch (error) {
+            throw new BadRequestException(`Failed to delete Category: ${error.message}`);
+        }
+    }
 }

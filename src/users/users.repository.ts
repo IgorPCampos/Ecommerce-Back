@@ -19,32 +19,27 @@ export class UserRepository {
         return await this.prisma.user.findMany();
     }
 
-    async create(data: any): Promise<User> {
+    async create(data: Prisma.UserCreateInput): Promise<User> {
         return await this.prisma.user.create({
             data: {
-                name: data.name,
-                email: data.email,
-                password: data.password
+                ...data
             }
         });
     }
 
-    async update(params: { id: number; data: Prisma.UserUpdateInput }): Promise<User> {
-        const { id, data } = params;
-        const numberId = Number(id);
+    async update(id: number, data: Prisma.UserUpdateInput): Promise<User> {
         return await this.prisma.user.update({
             data,
             where: {
-                id: numberId
+                id
             }
         });
     }
 
     async delete(id: number): Promise<User> {
-        const numberId = Number(id);
         return await this.prisma.user.delete({
             where: {
-                id: numberId
+                id
             }
         });
     }

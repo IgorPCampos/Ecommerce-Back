@@ -19,32 +19,30 @@ export class ProductRepository {
     }
 
     async create(data: Prisma.ProductCreateInput): Promise<Product> {
-        return await this.prisma.product.create({ data });
+        return await this.prisma.product.create({
+            data: {
+                ...data,
+                categories: {
+                    create: [{ categoryId: data.categories[0] }, { categoryId: data.categories[1] }]
+                }
+            }
+        });
     }
 
-    // async update ( params: {
-    //     id: number;
-    //     data: any;
-    // } ): Promise<Products>
-    // {
-    //     const { id, data } = params;
-    //     const numberId = Number( id );
+    async update(id: number, data: Prisma.ProductUpdateInput): Promise<Product> {
+        return await this.prisma.product.update({
+            where: { id },
+            data: {
+                ...data
+            }
+        });
+    }
 
-    //     return await this.prisma.product.update( {
-    //         data,
-    //         where: {
-    //             id: numberId
-    //         },
-    //     } );
-    // };
-
-    // async delete ( id: number ): Promise<Products>
-    // {
-    //     const numberId = Number( id );
-    //     return await this.prisma.product.delete( {
-    //         where: {
-    //             id: numberId
-    //         },
-    //     } );
-    // };
+    async delete(id: number): Promise<Product> {
+        return await this.prisma.product.delete({
+            where: {
+                id
+            }
+        });
+    }
 }

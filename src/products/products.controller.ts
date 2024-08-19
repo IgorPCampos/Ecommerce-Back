@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { ProductService } from "../products/products.service";
-import { Product, Prisma } from "@prisma/client";
+import { Product, Prisma, User } from "@prisma/client";
 import { ParamId } from "../decorators/param-id.decorator";
 
 @Controller("products")
@@ -9,19 +9,26 @@ export class ProductController {
 
     @Get(":id")
     async findById(@ParamId("id") id: number): Promise<Product | null> {
-        const product = await this.productService.findById(id);
-        return product;
+        return this.productService.findById(id);
     }
 
     @Get()
     async findAll(): Promise<Product[]> {
-        const products = await this.productService.findAll();
-        return products;
+        return this.productService.findAll();
     }
 
     @Post()
     async create(@Body() productData: Prisma.ProductCreateInput): Promise<Product> {
-        const product = await this.productService.create(productData);
-        return product;
+        return this.productService.create(productData);
+    }
+
+    @Put(":id")
+    async update(@ParamId() id: number, @Body() data: Prisma.ProductUpdateInput): Promise<Product> {
+        return this.productService.update(id, data);
+    }
+
+    @Delete(":id")
+    async delete(@ParamId() id: number): Promise<Product> {
+        return this.productService.delete(id);
     }
 }

@@ -33,4 +33,20 @@ export class ProductService {
             throw new BadRequestException(`Failed to create product: ${error.message}`);
         }
     }
+
+    async update(id: number, data: Prisma.ProductUpdateInput): Promise<Product> {
+        try {
+            return await this.productRepository.update(id, data);
+        } catch (error) {
+            throw new BadRequestException(`Failed to update product: ${error.message}`);
+        }
+    }
+
+    async delete(id: number): Promise<Product> {
+        try {
+            return await this.productRepository.delete(id);
+        } catch (error) {
+            throw new BadRequestException(`Failed to delete product: ${error.message}`);
+        }
+    }
 }

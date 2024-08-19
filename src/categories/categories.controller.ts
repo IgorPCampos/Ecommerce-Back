@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
-import { Category, Prisma } from "@prisma/client";
+import { Body, Controller, Delete, Get, Post, Put } from "@nestjs/common";
+import { Category, Prisma, Product } from "@prisma/client";
 import { ParamId } from "../decorators/param-id.decorator";
 import { CategoryService } from "./categories.service";
 
@@ -23,5 +23,15 @@ export class CategoryController {
     async create(@Body() categoryData: Prisma.ProductCreateInput): Promise<Category> {
         const categories = await this.categoryService.create(categoryData);
         return categories;
+    }
+
+    @Put(":id")
+    async update(@ParamId() id: number, @Body() data: Prisma.CategoryUpdateInput): Promise<Category> {
+        return this.categoryService.update(id, data);
+    }
+
+    @Delete(":id")
+    async delete(@ParamId() id: number): Promise<Category> {
+        return this.categoryService.delete(id);
     }
 }
