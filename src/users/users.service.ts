@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { User, Prisma } from "@prisma/client";
 import { UserRepository } from "./users.repository";
 import * as bcrypt from "bcrypt";
+import { CreateUserDTO } from "./dto/create-user.dto";
 
 @Injectable()
 export class UserService {
@@ -19,6 +20,18 @@ export class UserService {
         }
     }
 
+    async findById(id: number): Promise<User | null> {
+        try {
+            const user = await this.userRepository.findById(id);
+            if (!user) {
+                throw new NotFoundException(`User with id ${id} not found.`);
+            }
+            return user;
+        } catch (error) {
+            throw new NotFoundException(`Failed to find user: ${error.message}`);
+        }
+    }
+
     async findAll(): Promise<User[]> {
         try {
             return await this.userRepository.findAll();
@@ -27,7 +40,7 @@ export class UserService {
         }
     }
 
-    async create(data: Prisma.UserCreateInput): Promise<User> {
+    async create(data: CreateUserDTO): Promise<User> {
         try {
             const saltOrRounds = 10;
             const password = data.password;

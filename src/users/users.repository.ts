@@ -7,12 +7,19 @@ export class UserRepository {
     constructor(private prisma: PrismaService) {}
 
     async findByEmail(email: string): Promise<User | null> {
-        const findOne = await this.prisma.user.findFirst({
+        return await this.prisma.user.findFirst({
             where: {
                 email
             }
         });
-        return findOne;
+    }
+
+    async findById(id: number): Promise<User | null> {
+        return await this.prisma.user.findFirst({
+            where: {
+                id
+            }
+        });
     }
 
     async findAll(): Promise<User[]> {
