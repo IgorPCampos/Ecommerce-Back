@@ -3,6 +3,7 @@ import { User, Prisma } from "@prisma/client";
 import { UserRepository } from "./users.repository";
 import * as bcrypt from "bcrypt";
 import { CreateUserDTO } from "./dto/create-user.dto";
+import { UpdateUserDTO } from "./dto/update-user.dto";
 
 @Injectable()
 export class UserService {
@@ -20,16 +21,13 @@ export class UserService {
         }
     }
 
-    async findById(id: number): Promise<User | null> {
-        try {
-            const user = await this.userRepository.findById(id);
-            if (!user) {
-                throw new NotFoundException(`User with id ${id} not found.`);
-            }
-            return user;
-        } catch (error) {
-            throw new NotFoundException(`Failed to find user: ${error.message}`);
+    async findById(id: number): Promise<User> {
+        const exists = await this.userRepository.exists(id);
+        if (!exists) {
+            throw new NotFoundException(`User with id ${id} not found`);
         }
+
+        return await this.userRepository.findById(id);
     }
 
     async findAll(): Promise<User[]> {
@@ -56,19 +54,21 @@ export class UserService {
         }
     }
 
-    async update(id: number, data: Prisma.UserUpdateInput): Promise<User> {
-        try {
-            return await this.userRepository.update(id, data)
-        } catch (error) {
-            throw new BadRequestException(`Failed to update user: ${error.message}`);
+    async update(id: number, data: UpdateUserDTO): Promise<User> {
+        const exists = await this.userRepository.exists(id);
+        if (!exists) {
+            throw new NotFoundException(`User with id ${id} not found`);
         }
+
+        return await this.userRepository.update(id, data);
     }
 
     async delete(id: number): Promise<User> {
-        try {
-            return await this.userRepository.delete(id)
-        } catch (error) {
-            throw new BadRequestException(`Failed to delete user: ${error.message}`);
+        const exists = await this.userRepository.exists(id);
+        if (!exists) {
+            throw new NotFoundException(`User with id ${id} not found`);
         }
+        
+        return await this.userRepository.delete(id);
     }
 }

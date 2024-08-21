@@ -1,21 +1,20 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Category, Prisma } from "@prisma/client";
 import { CategoryRepository } from "./categories.repository";
+import { CreateCategoryDto } from "./dto/create-category.dto";
+import { UpdateCategoryDto } from "./dto/update-category.dto";
 
 @Injectable()
 export class CategoryService {
     constructor(private readonly categoryRepository: CategoryRepository) {}
 
     async findById(id: number): Promise<Category | null> {
-        try {
-            const category = await this.categoryRepository.findById(id);
-            if (!category) {
-                throw new NotFoundException(`category with id ${id} not found.`);
-            }
-            return category;
-        } catch (error) {
-            throw new NotFoundException(`Failed to find category: ${error.message}`);
+        const exists = await this.categoryRepository.exists(id);
+        if (!exists) {
+            throw new NotFoundException(`Category with id ${id} not found`);
         }
+
+        return await this.categoryRepository.findById(id);
     }
 
     async findAll(): Promise<Category[]> {
@@ -26,7 +25,7 @@ export class CategoryService {
         }
     }
 
-    async create(data: Prisma.CategoryCreateInput): Promise<Category> {
+    async create(data: CreateCategoryDto): Promise<Category> {
         try {
             return await this.categoryRepository.create(data);
         } catch (error) {
@@ -34,19 +33,21 @@ export class CategoryService {
         }
     }
 
-    async update(id: number, data: Prisma.CategoryUpdateInput): Promise<Category> {
-        try {
-            return await this.categoryRepository.update(id, data);
-        } catch (error) {
-            throw new BadRequestException(`Failed to update Category: ${error.message}`);
+    async update(id: number, data: UpdateCategoryDto): Promise<Category> {
+        const exists = await this.categoryRepository.exists(id);
+        if (!exists) {
+            throw new NotFoundException(`Category with id ${id} not found`);
         }
+
+        return await this.categoryRepository.update(id, data);
     }
 
     async delete(id: number): Promise<Category> {
-        try {
-            return await this.categoryRepository.delete(id);
-        } catch (error) {
-            throw new BadRequestException(`Failed to delete Category: ${error.message}`);
+        const exists = await this.categoryRepository.exists(id);
+        if (!exists) {
+            throw new NotFoundException(`Category with id ${id} not found`);
         }
+
+        return await this.categoryRepository.delete(id);
     }
 }

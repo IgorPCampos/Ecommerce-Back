@@ -4,18 +4,22 @@ import { AuthRepository } from "./auth.repository";
 
 @Injectable()
 export class AuthService {
-    constructor(
-        private readonly authRepository: AuthRepository,
-    ) {}
+    constructor(private readonly authRepository: AuthRepository) {}
 
     createToken(user: User) {
-        return this.authRepository.createToken(user)
+        try {
+            return this.authRepository.createToken(user);
+        } catch (error) {
+            throw new NotFoundException(`Failed to create token: ${error.message}`);
+        }
     }
 
     async login(email: string, password: string) {
-        return this.authRepository.login(email, password) 
+        try {
+            return await this.authRepository.login(email, password);
+        } catch (error) {
+            throw new NotFoundException(`Failed to login: ${error.message}`);
+        }
+        
     }
-
-    
-
 }

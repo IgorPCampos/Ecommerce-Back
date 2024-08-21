@@ -1,13 +1,24 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Product, Prisma } from "@prisma/client";
+import { CreateProductDto } from "./dto/create-product.dto";
+import { UpdateProductDto } from "./dto/update-product.dto";
 
 @Injectable()
 export class ProductRepository {
     constructor(private prisma: PrismaService) {}
 
+    async exists(id: number): Promise<boolean> {
+        const count = await this.prisma.product.count({
+            where: {
+                id
+            }
+        });
+        return count > 0;
+    }
+
     async findById(id: number): Promise<Product> {
-        return await this.prisma.product.findUnique({
+        return this.prisma.product.findUnique({
             where: {
                 id
             }
@@ -15,31 +26,54 @@ export class ProductRepository {
     }
 
     async findAll(): Promise<Product[]> {
-        return await this.prisma.product.findMany();
+        return this.prisma.product.findMany();
     }
 
-    async create(data: Prisma.ProductCreateInput): Promise<Product> {
-        return await this.prisma.product.create({
-            data: {
-                ...data,
-                categories: {
-                    create: [{ categoryId: data.categories[0] }, { categoryId: data.categories[1] }]
-                }
-            }
+    async create(createProductDto: CreateProductDto) {
+        const { categories, ...productData } = createProductDto;
+        return this.prisma.product.create({
+          data: {
+            ...productData,
+            categories: {
+              create: categories.map((categoryId) => ({
+                category: { connect: { id: categoryId } },
+              })),
+            },
+          },
+          include: { categories: true },
         });
-    }
+      }
 
-    async update(id: number, data: Prisma.ProductUpdateInput): Promise<Product> {
-        return await this.prisma.product.update({
-            where: { id },
-            data: {
-                ...data
-            }
+      async update(id: number, updateProductDto: UpdateProductDto) {
+        const { categories, ...productData } = updateProductDto;
+      
+        await this.prisma.product.update({
+          where: { id },
+          data: productData,
         });
-    }
+      
+        if (categories) {
+          await this.prisma.categoriesOnProducts.deleteMany({
+            where: { productId: id },
+          });
+      
+          await this.prisma.categoriesOnProducts.createMany({
+            data: categories.map((categoryId) => ({
+              productId: id,
+              categoryId: categoryId,
+            })),
+          });
+        }
+      
+        return this.prisma.product.findUnique({
+          where: { id },
+          include: { categories: true },
+        });
+      }
+      
 
     async delete(id: number): Promise<Product> {
-        return await this.prisma.product.delete({
+        return this.prisma.product.delete({
             where: {
                 id
             }

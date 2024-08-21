@@ -1,13 +1,23 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { User, Prisma } from "@prisma/client";
+import { UpdateUserDTO } from "./dto/update-user.dto";
 
 @Injectable()
 export class UserRepository {
     constructor(private prisma: PrismaService) {}
 
+    async exists(id: number): Promise<boolean> {
+        const count = await this.prisma.user.count({
+            where: {
+                id
+            }
+        });
+        return count > 0;
+    }
+
     async findByEmail(email: string): Promise<User | null> {
-        return await this.prisma.user.findFirst({
+        return this.prisma.user.findFirst({
             where: {
                 email
             }
@@ -15,7 +25,7 @@ export class UserRepository {
     }
 
     async findById(id: number): Promise<User | null> {
-        return await this.prisma.user.findFirst({
+        return this.prisma.user.findFirst({
             where: {
                 id
             }
@@ -23,19 +33,19 @@ export class UserRepository {
     }
 
     async findAll(): Promise<User[]> {
-        return await this.prisma.user.findMany();
+        return this.prisma.user.findMany();
     }
 
     async create(data: Prisma.UserCreateInput): Promise<User> {
-        return await this.prisma.user.create({
+        return this.prisma.user.create({
             data: {
                 ...data
             }
         });
     }
 
-    async update(id: number, data: Prisma.UserUpdateInput): Promise<User> {
-        return await this.prisma.user.update({
+    async update(id: number, data: UpdateUserDTO): Promise<User> {
+        return this.prisma.user.update({
             data,
             where: {
                 id
@@ -44,7 +54,7 @@ export class UserRepository {
     }
 
     async delete(id: number): Promise<User> {
-        return await this.prisma.user.delete({
+        return this.prisma.user.delete({
             where: {
                 id
             }

@@ -1,21 +1,20 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Product, Prisma } from "@prisma/client";
 import { ProductRepository } from "./products.repository";
+import { CreateProductDto } from "./dto/create-product.dto";
+import { UpdateProductDto } from "./dto/update-product.dto";
 
 @Injectable()
 export class ProductService {
     constructor(private readonly productRepository: ProductRepository) {}
 
     async findById(id: number): Promise<Product | null> {
-        try {
-            const product = await this.productRepository.findById(id);
-            if (!product) {
-                throw new NotFoundException(`Product with id ${id} not found.`);
-            }
-            return product;
-        } catch (error) {
-            throw new NotFoundException(`Failed to find product: ${error.message}`);
+        const exists = await this.productRepository.exists(id);
+        if (!exists) {
+            throw new NotFoundException(`Product with id ${id} not found`);
         }
+
+        return await this.productRepository.findById(id);
     }
 
     async findAll(): Promise<Product[]> {
@@ -26,7 +25,7 @@ export class ProductService {
         }
     }
 
-    async create(data: Prisma.ProductCreateInput): Promise<Product> {
+    async create(data: CreateProductDto): Promise<Product> {
         try {
             return await this.productRepository.create(data);
         } catch (error) {
@@ -34,19 +33,21 @@ export class ProductService {
         }
     }
 
-    async update(id: number, data: Prisma.ProductUpdateInput): Promise<Product> {
-        try {
-            return await this.productRepository.update(id, data);
-        } catch (error) {
-            throw new BadRequestException(`Failed to update product: ${error.message}`);
+    async update(id: number, data: UpdateProductDto): Promise<Product> {
+        const exists = await this.productRepository.exists(id);
+        if (!exists) {
+            throw new NotFoundException(`Product with id ${id} not found`);
         }
+
+        return await this.productRepository.update(id, data);
     }
 
     async delete(id: number): Promise<Product> {
-        try {
-            return await this.productRepository.delete(id);
-        } catch (error) {
-            throw new BadRequestException(`Failed to delete product: ${error.message}`);
+        const exists = await this.productRepository.exists(id);
+        if (!exists) {
+            throw new NotFoundException(`Product with id ${id} not found`);
         }
+
+        return await this.productRepository.delete(id);
     }
 }
