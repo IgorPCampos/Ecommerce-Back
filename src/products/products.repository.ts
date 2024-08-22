@@ -73,6 +73,10 @@ export class ProductRepository {
       
 
     async delete(id: number): Promise<Product> {
+        await this.prisma.categoriesOnProducts.deleteMany({
+            where: { productId: id }
+        });
+
         return this.prisma.product.delete({
             where: {
                 id

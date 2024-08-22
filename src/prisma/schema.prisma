@@ -19,6 +19,8 @@ model User {
     token     String?
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now())
+
+    orders Order[]
 }
 
 model Product {
@@ -31,6 +33,7 @@ model Product {
     createdAt   DateTime @default(now())
     updatedAt   DateTime @default(now())
 
+    orderItems OrderItem[]
     categories CategoriesOnProducts[]
 }
 
@@ -48,4 +51,25 @@ model CategoriesOnProducts {
     categoryId Int
 
     @@id([productId, categoryId])
+}
+
+model Order {
+    id            Int         @id @default(autoincrement())
+    address       String
+    paymentMethod String
+    total         Float
+    orderItems    OrderItem[]
+    userId        Int
+    user          User        @relation(fields: [userId], references: [id])
+}
+
+model OrderItem {
+    id        Int     @id @default(autoincrement())
+    product   Product @relation(fields: [productId], references: [id])
+    productId Int
+    order     Order   @relation(fields: [orderId], references: [id])
+    orderId   Int
+    quantity  Int
+
+    @@unique([productId, orderId])
 }
