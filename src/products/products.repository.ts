@@ -26,51 +26,54 @@ export class ProductRepository {
     }
 
     async findAll(): Promise<Product[]> {
-        return this.prisma.product.findMany();
+        return this.prisma.product.findMany({
+            include: {
+                categories: true
+            }
+        });
     }
 
     async create(createProductDto: CreateProductDto) {
         const { categories, ...productData } = createProductDto;
         return this.prisma.product.create({
-          data: {
-            ...productData,
-            categories: {
-              create: categories.map((categoryId) => ({
-                category: { connect: { id: categoryId } },
-              })),
+            data: {
+                ...productData,
+                categories: {
+                    create: categories.map((categoryId) => ({
+                        category: { connect: { id: categoryId } }
+                    }))
+                }
             },
-          },
-          include: { categories: true },
+            include: { categories: true }
         });
-      }
+    }
 
-      async update(id: number, updateProductDto: UpdateProductDto) {
+    async update(id: number, updateProductDto: UpdateProductDto) {
         const { categories, ...productData } = updateProductDto;
-      
+
         await this.prisma.product.update({
-          where: { id },
-          data: productData,
+            where: { id },
+            data: productData
         });
-      
+
         if (categories) {
-          await this.prisma.categoriesOnProducts.deleteMany({
-            where: { productId: id },
-          });
-      
-          await this.prisma.categoriesOnProducts.createMany({
-            data: categories.map((categoryId) => ({
-              productId: id,
-              categoryId: categoryId,
-            })),
-          });
+            await this.prisma.categoriesOnProducts.deleteMany({
+                where: { productId: id }
+            });
+
+            await this.prisma.categoriesOnProducts.createMany({
+                data: categories.map((categoryId) => ({
+                    productId: id,
+                    categoryId: categoryId
+                }))
+            });
         }
-      
+
         return this.prisma.product.findUnique({
-          where: { id },
-          include: { categories: true },
+            where: { id },
+            include: { categories: true }
         });
-      }
-      
+    }
 
     async delete(id: number): Promise<Product> {
         await this.prisma.categoriesOnProducts.deleteMany({

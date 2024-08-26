@@ -3,6 +3,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { Order } from "@prisma/client";
 import { CreateOrderDto } from "./dto/create-Order.dto";
 import { UpdateOrderDto } from "./dto/update-Order.dto";
+import { PaymentMethod } from "../utility/enums/paymentMethod.enum";
 
 interface OrderItemsDto {
     orderItems: {
@@ -65,14 +66,32 @@ export class OrderRepository {
         return total;
     }
 
+    whichPaymentMethod(paymentMethod: string) {
+        console.log(paymentMethod)
+        if (paymentMethod == PaymentMethod.creditCard) {
+            paymentMethod = "Credit Card";
+        } else if (paymentMethod == PaymentMethod.debitCard) {
+            paymentMethod = "Debit Card";
+        } else if (paymentMethod == PaymentMethod.pix) {
+            paymentMethod = "Pix";
+        } else if (paymentMethod == PaymentMethod.boleto) {
+            paymentMethod = "Boleto";
+        } else {
+            return undefined
+        }
+        return paymentMethod
+    }
+
     async create(createOrderDto: CreateOrderDto, userId: number) {
         const total = await this.calculateTotalPrice(createOrderDto);
-
+        const paymentMethod =  this.whichPaymentMethod(createOrderDto.paymentMethod)
+        console.log(paymentMethod)
         return this.prisma.order.create({
             data: {
                 ...createOrderDto,
                 total,
                 userId,
+                paymentMethod,
                 orderItems: {
                     create: createOrderDto.orderItems.map((product) => ({
                         productId: product.productId,
@@ -85,12 +104,14 @@ export class OrderRepository {
 
     async update(orderId: number, updateOrderDto: UpdateOrderDto) {
         const total = await this.calculateTotalPrice(updateOrderDto);
+        const paymentMethod =  this.whichPaymentMethod(updateOrderDto.paymentMethod)
 
         return this.prisma.order.update({
             where: { id: orderId },
             data: {
                 ...updateOrderDto,
                 total,
+                paymentMethod,
                 orderItems: {
                     upsert: updateOrderDto.orderItems.map((product) => ({
                         where: {
