@@ -85,7 +85,7 @@ export class OrderRepository {
     async create(createOrderDto: CreateOrderDto, userId: number) {
         const total = await this.calculateTotalPrice(createOrderDto);
         const paymentMethod =  this.whichPaymentMethod(createOrderDto.paymentMethod)
-        console.log(paymentMethod)
+        
         return this.prisma.order.create({
             data: {
                 ...createOrderDto,
