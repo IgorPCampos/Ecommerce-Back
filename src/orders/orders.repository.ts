@@ -67,7 +67,6 @@ export class OrderRepository {
     }
 
     whichPaymentMethod(paymentMethod: string) {
-        console.log(paymentMethod)
         if (paymentMethod == PaymentMethod.creditCard) {
             paymentMethod = "Credit Card";
         } else if (paymentMethod == PaymentMethod.debitCard) {

@@ -5,7 +5,7 @@ import { CreateUserDTO } from "./dto/create-user.dto";
 import { AuthGuard } from "../utility/guards/auth.guard";
 import { UpdateUserDTO } from "./dto/update-user.dto";
 
-@UseGuards(AuthGuard)
+//@UseGuards(AuthGuard)
 @Controller("users")
 export class UserController {
     constructor(private readonly userService: UserService) {}

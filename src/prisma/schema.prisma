@@ -41,7 +41,9 @@ model Category {
     id   Int    @id @default(autoincrement())
     name String
 
-    products CategoriesOnProducts[]
+    createdAt DateTime               @default(now())
+    updatedAt DateTime               @default(now())
+    products  CategoriesOnProducts[]
 }
 
 model CategoriesOnProducts {
@@ -60,6 +62,8 @@ model Order {
     total         Float
     orderItems    OrderItem[]
     userId        Int
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @default(now())
     user          User        @relation(fields: [userId], references: [id])
 }
 
