@@ -3,6 +3,8 @@ import { Product, Prisma } from "@prisma/client";
 import { ProductRepository } from "./products.repository";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ProductService {
@@ -25,9 +27,27 @@ export class ProductService {
         }
     }
 
-    async create(data: CreateProductDto): Promise<Product> {
+    async findAllByCategory(categoryName: string): Promise<Product[]> {
         try {
-            return await this.productRepository.create(data);
+            return await this.productRepository.findAllByCategory(categoryName);
+        } catch (error) {
+            throw new NotFoundException(`Failed to find all products: ${error.message}`);
+        }
+    }
+
+    async findLatest(): Promise<Product[]> {
+        try {
+            return await this.productRepository.findLatest();
+        } catch (error) {
+            throw new NotFoundException(`Failed to find all products: ${error.message}`);
+        }
+    }
+
+    async create(data: CreateProductDto, imageFile: Express.Multer.File): Promise<Product> {
+        try {
+            const imagePath = path.join("uploads", imageFile.filename);
+            fs.writeFileSync(imagePath, imageFile.buffer);
+            return await this.productRepository.create({ ...data, image: imagePath });
         } catch (error) {
             throw new BadRequestException(`Failed to create product: ${error.message}`);
         }

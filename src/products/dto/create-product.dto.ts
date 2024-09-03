@@ -25,4 +25,7 @@ export class CreateProductDto {
     @ArrayNotEmpty()
     @IsInt({ each: true })
     categories: number[]; 
+
+    @IsNotEmpty()
+    image: string;
 }

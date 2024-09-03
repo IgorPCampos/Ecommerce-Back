@@ -33,6 +33,35 @@ export class ProductRepository {
         });
     }
 
+    async findAllByCategory(categoryName: string) {
+        return this.prisma.product.findMany({
+            where: {
+                categories: {
+                    some: {
+                        category: {
+                            name: categoryName
+                        }
+                    }
+                }
+            },
+            include: {
+                categories: true
+            }
+        });
+    }
+
+    async findLatest() {
+        return this.prisma.product.findMany({
+            orderBy: {
+                createdAt: 'desc',
+            },
+            take: 8,
+            include: {
+                categories: true,
+            },
+        });
+    }
+    
     async create(createProductDto: CreateProductDto) {
         const { categories, ...productData } = createProductDto;
         return this.prisma.product.create({
