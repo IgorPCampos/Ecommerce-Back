@@ -33,6 +33,14 @@ export class ProductRepository {
         });
     }
 
+    async findAllByUser(userId: number) {
+        return this.prisma.product.findMany({
+            where: {
+                userId: userId,
+            },
+        });
+    }
+
     async findAllByCategory(categoryName: string) {
         return this.prisma.product.findMany({
             where: {
@@ -62,11 +70,12 @@ export class ProductRepository {
         });
     }
     
-    async create(createProductDto: CreateProductDto) {
+    async create(createProductDto: CreateProductDto, userId: number) {
         const { categories, ...productData } = createProductDto;
         return this.prisma.product.create({
             data: {
                 ...productData,
+                userId,
                 categories: {
                     create: categories.map((categoryId) => ({
                         category: { connect: { id: categoryId } }

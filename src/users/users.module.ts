@@ -8,9 +8,9 @@ import { AuthRepository } from "../auth/auth.repository";
 import { JwtModule } from "@nestjs/jwt";
 
 @Module({
-    imports: [PrismaModule, forwardRef(() => AuthModule), JwtModule],
+    imports: [PrismaModule, AuthModule, JwtModule],
     controllers: [UserController],
     providers: [UserService, UserRepository, AuthRepository],
-    exports: [UserService]
+    exports: [UserService, UserRepository]
 })
 export class UsersModule {}

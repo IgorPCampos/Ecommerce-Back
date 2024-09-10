@@ -25,6 +25,14 @@ export class ProductService {
         }
     }
 
+    async findAllByUser(userId: number): Promise<Product[]> {
+        try {
+            return await this.productRepository.findAllByUser(userId);
+        } catch (error) {
+            throw new NotFoundException(`Failed to find all products: ${error.message}`);
+        }
+    }
+
     async findAllByCategory(categoryName: string): Promise<Product[]> {
         try {
             return await this.productRepository.findAllByCategory(categoryName);
@@ -41,9 +49,9 @@ export class ProductService {
         }
     }
 
-    async create(data: CreateProductDto): Promise<Product> {
+    async create(data: CreateProductDto, userId: number): Promise<Product> {
         try {
-            return await this.productRepository.create(data);
+            return await this.productRepository.create(data, userId);
         } catch (error) {
             throw new BadRequestException(`Failed to create product: ${error.message}`);
         }

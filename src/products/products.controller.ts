@@ -1,12 +1,26 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseIntPipe,
+    Post,
+    Put,
+    Req,
+    UploadedFile,
+    UseGuards,
+    UseInterceptors
+} from "@nestjs/common";
 import { ProductService } from "../products/products.service";
-import { Product, Prisma, User } from "@prisma/client";
+import { Product } from "@prisma/client";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { extname } from "path";
 import { FileService } from "../files/files.service";
+import { AuthGuard } from "../utility/guards/auth.guard";
 
 @Controller("products")
 export class ProductController {
@@ -15,9 +29,10 @@ export class ProductController {
         private readonly fileService: FileService
     ) {}
 
+    
     @Get("id/:id")
-    async findById(@Param("id") id: number): Promise<Product | null> {
-        return this.productService.findById(+id);
+    async findById(@Param("id", ParseIntPipe) id: number): Promise<Product | null> {
+        return this.productService.findById(id);
     }
 
     @Get()
@@ -25,7 +40,14 @@ export class ProductController {
         return this.productService.findAll();
     }
 
-    @Get("name/:name")
+    @UseGuards(AuthGuard)
+    @Get(":userId")
+    async findAllByUser(@Req() req): Promise<Product[]> {
+        const user = req.user
+        return this.productService.findAllByUser(user.id);
+    }
+
+    @Get("category/:name")
     async findAllByCategory(@Param("name") categoryName: string): Promise<Product[]> {
         return this.productService.findAllByCategory(categoryName);
     }
@@ -35,19 +57,21 @@ export class ProductController {
         return this.productService.findLatest();
     }
 
+    @UseGuards(AuthGuard)
     @Post()
-    async createProduct(@Body() createProductDto: CreateProductDto) {
-        return this.productService.create(createProductDto);
+    async createProduct(@Body() createProductDto: CreateProductDto, @Req() req) {
+        const user = req.user
+        return this.productService.create(createProductDto, user.id);
     }
 
     @Post(":productId/upload")
     @UseInterceptors(
         FileInterceptor("file", {
             storage: diskStorage({
-                destination: "./uploads", 
+                destination: "./uploads",
                 filename: (req, file, callback) => {
                     const uniqueSuffix = `${Date.now()}${extname(file.originalname)}`;
-                    callback(null, uniqueSuffix); 
+                    callback(null, uniqueSuffix);
                 }
             })
         })
@@ -61,12 +85,12 @@ export class ProductController {
     }
 
     @Put(":id")
-    async update(@Param("id") id: number, @Body() data: UpdateProductDto): Promise<Product> {
-        return this.productService.update(+id, data);
+    async update(@Param("id", ParseIntPipe) id: number, @Body() data: UpdateProductDto): Promise<Product> {
+        return this.productService.update(id, data);
     }
 
     @Delete(":id")
-    async delete(@Param("id") id: number): Promise<Product> {
-        return this.productService.delete(+id);
+    async delete(@Param("id", ParseIntPipe) id: number): Promise<Product> {
+        return this.productService.delete(id);
     }
 }

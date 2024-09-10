@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { User } from "@prisma/client";
 import { JwtService } from "@nestjs/jwt";
@@ -16,8 +16,6 @@ export class AuthRepository {
             accessToken: this.jwtService.sign(
                 {
                     id: user.id,
-                    name: user.name,
-                    email: user.email
                 },
                 {
                     expiresIn: "7 days",
@@ -37,20 +35,24 @@ export class AuthRepository {
         });
 
         if (!user) {
-            throw new NotFoundException("Email e/ou senha incorretos");
+            throw new UnauthorizedException("Email e/ou senha incorretos");
         }
 
         if (!(await bcrypt.compare(password, user.password))) {
-            throw new NotFoundException("Email e/ou senha incorretos");
+            throw new UnauthorizedException("Email e/ou senha incorretos");
         }
 
         return this.createToken(user);
     }
 
     checkToken(token: string) {
-        return this.jwtService.verify(token, {
-            audience: "users",
-            issuer: "login"
-        });
+        try {
+            return this.jwtService.verify(token, {
+                audience: "users",
+                issuer: "login"
+            });
+        } catch (error) {
+            throw new UnauthorizedException("Token inválido ou expirado");
+        }
     }
 }

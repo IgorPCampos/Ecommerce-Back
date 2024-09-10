@@ -5,10 +5,10 @@ export class AuthLoginDTO {
     email: string;
 
     @IsString()
-    @IsStrongPassword({
-        minLength: 6,
-        minSymbols: 0,
-        minUppercase: 0
-    })
+    // @IsStrongPassword({
+    //     minLength: 6,
+    //     minSymbols: 0,
+    //     minUppercase: 0
+    // })
     password: string;
 }
