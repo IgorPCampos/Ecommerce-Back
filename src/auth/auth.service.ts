@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "@prisma/client";
 import { AuthRepository } from "./auth.repository";
 
@@ -18,8 +18,7 @@ export class AuthService {
         try {
             return await this.authRepository.login(email, password);
         } catch (error) {
-            throw new NotFoundException(`Failed to login: ${error.message}`);
+            throw new NotFoundException(error.message);
         }
-        
     }
 }

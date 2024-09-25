@@ -46,10 +46,14 @@ export class UserService {
             const param = {
                 name: data.name,
                 email: data.email,
-                password: hash
+                password: hash,
+                role: data.role
             };
             return await this.userRepository.create(param);
         } catch (error) {
+            if (error.message.includes("Unique constraint failed")) {
+                throw new BadRequestException(`Já existe uma conta com esse email`);
+            }
             throw new BadRequestException(`Failed to create user: ${error.message}`);
         }
     }
@@ -68,7 +72,7 @@ export class UserService {
         if (!exists) {
             throw new NotFoundException(`User with id ${id} not found`);
         }
-        
+
         return await this.userRepository.delete(id);
     }
 }
