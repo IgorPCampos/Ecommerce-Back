@@ -25,6 +25,14 @@ export class OrderService {
         }
     }
 
+    async findAllByUser(userId: number): Promise<Order[]> {
+        try {
+            return await this.orderRepository.findAllByUser(userId);
+        } catch (error) {
+            throw new NotFoundException(`Failed to find all Orders: ${error.message}`);
+        }
+    }
+
     async create(data: CreateOrderDto, userId: number): Promise<Order> {
         try {
             return await this.orderRepository.create(data, userId);

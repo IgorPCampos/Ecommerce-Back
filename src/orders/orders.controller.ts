@@ -19,6 +19,11 @@ export class OrderController {
         return this.orderService.findAll();
     }
 
+    @Get(":userId")
+    async findAllByUser(@Param("userId", ParseIntPipe) userId: number): Promise<Order[]> {
+        return this.orderService.findAllByUser(userId);
+    }
+
     @Post(":userId")
     create(@Body() createOrderDto: CreateOrderDto, @Param("userId", ParseIntPipe) userId: number): Promise<Order | null> {
         return this.orderService.create(createOrderDto, userId);

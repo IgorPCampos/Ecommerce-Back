@@ -51,6 +51,23 @@ export class OrderRepository {
         });
     }
 
+    async findAllByUser(userId: number): Promise<Order[]> {
+        return this.prisma.order.findMany({
+            where: {
+                userId: userId, 
+            },
+            include: {
+                orderItems: {
+                    include: {
+                        product: true,
+                    },
+                },
+                user: true, 
+            },
+        });
+    }
+    
+
     async calculateTotalPrice(dto: OrderItemsDto) {
         let total = 0;
 
