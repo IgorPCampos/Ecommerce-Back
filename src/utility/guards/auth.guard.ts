@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthRepository } from "../../auth/auth.repository";
 import { UserRepository } from "../../users/users.repository";
 
@@ -11,15 +11,18 @@ export class AuthGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext) {
         const request = context.switchToHttp().getRequest();
-        const { authorization } = request.headers;
-        try {
-            const data = this.authRepository.checkToken((authorization ?? "").split(" ")[1]);
+        const token = request.cookies["token"];
 
-            request.token = data;
-            request.user = await this.userRepository.findById(data.id);
+        if (!token) {
+            throw new UnauthorizedException("Token não encontrado");
+        }
+
+        try {
+            const data = this.authRepository.checkToken(token);
+            request.user = await this.userRepository.findById(data.id); 
             return true;
         } catch (error) {
-            return false;
+            throw new UnauthorizedException("Token inválido ou expirado");
         }
     }
 }

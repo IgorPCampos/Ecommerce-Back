@@ -43,8 +43,8 @@ export class ProductController {
     @UseGuards(AuthGuard)
     @Get(":userId")
     async findAllByUser(@Req() req): Promise<Product[]> {
-        const user = req.user
-        return this.productService.findAllByUser(user.id);
+        const user = req.user.id
+        return this.productService.findAllByUser(user);
     }
 
     @Get("category/:name")
@@ -76,11 +76,11 @@ export class ProductController {
             })
         })
     )
-    async uploadFile(@UploadedFile() file: Express.Multer.File, @Param("productId") productId: number) {
+    async uploadFile(@UploadedFile() file: Express.Multer.File, @Param("productId", ParseIntPipe) productId: number) {
         const { filename, mimetype, path } = file;
         const filePath = `/uploads/${filename}`;
 
-        const savedFile = await this.fileService.saveFileForProduct(filename, mimetype, filePath, +productId);
+        const savedFile = await this.fileService.saveFileForProduct(filename, mimetype, filePath, productId);
         return { file: savedFile };
     }
 

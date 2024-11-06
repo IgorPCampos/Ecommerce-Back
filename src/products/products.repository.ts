@@ -28,7 +28,8 @@ export class ProductRepository {
     async findAll(): Promise<Product[]> {
         return this.prisma.product.findMany({
             include: {
-                categories: true
+                categories: true,
+                file: true
             }
         });
     }
