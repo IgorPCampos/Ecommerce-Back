@@ -10,10 +10,8 @@ export class AuthController {
     @Get("checkToken")
     async checkToken(@Req() req: Request, @Res() res: Response) {
         const token = req.cookies?.token;
-        console.log("Token ", token);
         try {
             const isValid = await this.authService.checkToken(token);
-            console.log("Is valid ", isValid);
             return res.status(200).json({ isAuthenticated: isValid });
         } catch (error) {
             return res.status(200).json({ isAuthenticated: false });

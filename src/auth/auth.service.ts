@@ -10,7 +10,6 @@ export class AuthService {
     async checkToken(token: string): Promise<boolean> {
         try {
             const teste = await this.authRepository.checkToken(token);
-            console.log("teste", teste)
             return teste
         } catch (error) {
             throw new UnauthorizedException('Token inválido ou expirado');
