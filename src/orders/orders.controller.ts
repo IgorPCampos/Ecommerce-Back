@@ -1,4 +1,3 @@
-// src/orders/orders.controller.ts
 import { Controller, Get, Post, Body, Patch, Param, Put, Delete, ParseIntPipe } from "@nestjs/common";
 import { OrderService } from "./orders.service";
 import { CreateOrderDto } from "./dto/create-order.dto";

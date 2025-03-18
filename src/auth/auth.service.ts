@@ -1,27 +1,18 @@
-import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { User } from "@prisma/client";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthRepository } from "./auth.repository";
 import { Response } from "express";
+import { AuthLoginDTO } from "./dto/auth-login.dto";
 
 @Injectable()
 export class AuthService {
     constructor(private readonly authRepository: AuthRepository) {}
 
-    async checkToken(token: string): Promise<boolean> {
+    async login(loginDTO: AuthLoginDTO, res: Response) {
         try {
-            const teste = await this.authRepository.checkToken(token);
-            return teste
-        } catch (error) {
-            throw new UnauthorizedException('Token inválido ou expirado');
-        }
-    }
-
-    async login(email: string, password: string, res: Response) {
-        try {
-            await this.authRepository.login(email, password, res);
+            await this.authRepository.login(loginDTO, res);
             return res.status(200).json({ message: "Login realizado com sucesso" });
         } catch (error) {
-            throw new NotFoundException(error.message);
+            throw new UnauthorizedException(error.message);
         }
     }
 
@@ -29,7 +20,7 @@ export class AuthService {
         try {
             return this.authRepository.removeToken(res);
         } catch (error) {
-            throw new NotFoundException(error.message);
+            throw new UnauthorizedException(error.message);
         }
     }
 }

@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { AuthRepository } from "../../auth/auth.repository";
 import { UserRepository } from "../../users/users.repository";
+import { TokenService } from "src/auth/token.service";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(
-        private readonly authRepository: AuthRepository,
+        private readonly tokenService: TokenService,
         private readonly userRepository: UserRepository
     ) {}
 
@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
         }
 
         try {
-            const data = this.authRepository.checkToken(token);
+            const data = this.tokenService.verifyToken(token);
             request.user = await this.userRepository.findById(data.id); 
             return true;
         } catch (error) {

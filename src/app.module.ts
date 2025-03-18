@@ -6,9 +6,10 @@ import { CategoriesModule } from "./categories/categories.module";
 import { AuthModule } from "./auth/auth.module";
 import { OrderModule } from './orders/orders.module';
 import { FileModule } from './files/files.module';
+import { ConfigModule } from "@nestjs/config";
 
 @Module({
-    imports: [UsersModule, ProductsModule, PrismaModule, CategoriesModule, AuthModule, OrderModule, FileModule],
+    imports: [UsersModule, ProductsModule, PrismaModule, CategoriesModule, AuthModule, OrderModule, FileModule, ConfigModule.forRoot({ isGlobal: true })],
     controllers: [],
     providers: [],
     exports: []
